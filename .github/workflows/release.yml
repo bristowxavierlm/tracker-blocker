@@ -1,0 +1,22 @@
+name: Create ZIP Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Zip extension
+        run: zip -r tracker-blocker.zip . -x ".git/*" ".github/*"
+
+      - name: Upload Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: tracker-blocker.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
