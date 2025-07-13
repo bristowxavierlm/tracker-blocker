@@ -2,7 +2,9 @@ Tracker Blocker Extension
 
 A minimalist browser extension (Chrome & Firefox) designed to block tracking scripts and display stats, with a clean macOS‑style interface.
 
----
+![GitHub release](https://img.shields.io/github/v/release/bristowxavierlm/tracker-blocker)
+![GitHub issues](https://img.shields.io/github/issues/bristowxavierlm/tracker-blocker)
+![License](https://img.shields.io/github/license/bristowxavierlm/tracker-blocker)
 
 Features
 
