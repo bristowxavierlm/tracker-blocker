@@ -10,6 +10,8 @@ async function getUserLists() {
 
 chrome.runtime.onInstalled.addListener(() => {
   initializeRules();
+  chrome.action.setBadgeText({ text: "ON" }); // show "ON" badge
+  chrome.action.setBadgeBackgroundColor({ color: "#4caf50" });
 });
 
 chrome.storage.onChanged.addListener(async (changes, area) => {
@@ -30,7 +32,7 @@ async function initializeRules() {
 
 function buildRules(defaultTrackers, blacklist, whitelist) {
   const allTrackers = [...new Set([...defaultTrackers, ...blacklist])];
-  
+
   return allTrackers.map((domain, index) => {
     return {
       id: index + 1,
@@ -44,14 +46,5 @@ function buildRules(defaultTrackers, blacklist, whitelist) {
   });
 }
 
-let blockedCount = 0;
-
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg === 'getBlockedCount') {
-    sendResponse({ count: blockedCount });
-  } else if (msg === 'resetCount') {
-    blockedCount = 0;
-    chrome.action.setBadgeText({ text: "0" });
-  }
-});
-
+// We no longer keep blockedCount manually;
+// the popup will call getMatchedRules to get real blocked number
