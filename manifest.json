@@ -1,23 +1,30 @@
 {
-    "manifest_version": 3,
-    "name": "Tracker Blocker",
-    "version": "1.0",
-    "description": "Blocks known tracking scripts and shows stats.",
-    "permissions": [
-      "storage",
-      "webRequest",
-      "webRequestBlocking"
-    ],
-    "host_permissions": [
-      "<all_urls>"
-    ],
-    "background": {
-      "service_worker": "background.js"
-    },
-    "action": {
-      "default_popup": "popup.html",
-      "default_icon": "icons/icon.png"
-    },
-    "options_page": "options.html"
+  "manifest_version": 3,
+  "name": "Tracker Blocker",
+  "version": "1.0",
+  "description": "Blocks known tracking scripts and shows stats.",
+  "permissions": [
+    "storage",
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icons/icon.png"
+  },
+  "options_page": "options.html",
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "dynamic_rules",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
   }
-  
+}

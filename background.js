@@ -1,7 +1,5 @@
 importScripts('trackers.js');
 
-let blockedCount = 0;
-
 async function getUserLists() {
   return new Promise(resolve => {
     chrome.storage.sync.get(["whitelist", "blacklist"], (items) => {
@@ -10,30 +8,46 @@ async function getUserLists() {
   });
 }
 
-chrome.webRequest.onBeforeRequest.addListener(
-  async (details) => {
-    const url = new URL(details.url);
-    const hostname = url.hostname;
+chrome.runtime.onInstalled.addListener(() => {
+  initializeRules();
+});
 
-    const { whitelist = [], blacklist = [] } = await getUserLists();
+chrome.storage.onChanged.addListener(async (changes, area) => {
+  if (area === 'sync' && (changes.whitelist || changes.blacklist)) {
+    initializeRules();
+  }
+});
 
-    if (whitelist.includes(hostname)) return;
+async function initializeRules() {
+  const { whitelist = [], blacklist = [] } = await getUserLists();
+  const rules = buildRules(defaultTrackingDomains, blacklist, whitelist);
+  
+  await chrome.declarativeNetRequest.updateDynamicRules({
+    removeRuleIds: rules.map(rule => rule.id),
+    addRules: rules
+  });
+}
 
-    const allTrackers = [...defaultTrackingDomains, ...blacklist];
-    if (allTrackers.some(domain => hostname.includes(domain))) {
-      blockedCount++;
-      chrome.action.setBadgeText({ text: blockedCount.toString() });
-      return { cancel: true };
-    }
-  },
-  { urls: ["<all_urls>"] },
-  ["blocking"]
-);
+function buildRules(defaultTrackers, blacklist, whitelist) {
+  const allTrackers = [...new Set([...defaultTrackers, ...blacklist])];
+  
+  return allTrackers.map((domain, index) => {
+    return {
+      id: index + 1,
+      priority: 1,
+      action: { type: "block" },
+      condition: {
+        urlFilter: domain,
+        resourceTypes: ["script", "xmlhttprequest", "sub_frame"]
+      }
+    };
+  });
+}
+
+let blockedCount = 0;
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg === 'getBlockedCount') {
-    sendResponse({ count: blockedCount });
-  } else if (msg === 'resetCount') {
+  if (msg === 'resetCount') {
     blockedCount = 0;
     chrome.action.setBadgeText({ text: "0" });
   }
