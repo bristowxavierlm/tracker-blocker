@@ -47,8 +47,11 @@ function buildRules(defaultTrackers, blacklist, whitelist) {
 let blockedCount = 0;
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg === 'resetCount') {
+  if (msg === 'getBlockedCount') {
+    sendResponse({ count: blockedCount });
+  } else if (msg === 'resetCount') {
     blockedCount = 0;
     chrome.action.setBadgeText({ text: "0" });
   }
 });
+
